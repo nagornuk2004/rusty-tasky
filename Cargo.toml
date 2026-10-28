@@ -1,0 +1,10 @@
+[package]
+name = "rusty-tasky"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+relm4 = { version = "0.11.0", features = ["macros", "libadwaita"] }
+relm4-components = "0.11.0"
+relm4-icons = "0.11.0"
+tracker = "0.2.2"
