@@ -1,16 +1,30 @@
-use relm4::{gtk, SimpleComponent, ComponentSender, ComponentParts, prelude::*};
-use gtk::prelude::*;
+pub(crate) mod components;
 
-pub struct AppModel {}
+use gtk::prelude::*;
+use relm4::{
+    ComponentParts, ComponentSender, SimpleComponent,
+    gtk::{self},
+    prelude::*,
+};
+
+use components::form::FormModel;
+
+use crate::app::components::form::FormInput;
+
+pub struct AppModel {
+    form: Controller<FormModel>,
+}
 
 #[derive(Debug)]
-pub enum AppMsg {}
+pub enum AppMsg {
+    NewTask,
+}
 
 #[relm4::component(pub)]
 impl SimpleComponent for AppModel {
     type Input = AppMsg;
     type Output = ();
-    type Init = ();
+    type Init = Vec<String>;
 
     view! {
         #[root]
@@ -24,24 +38,31 @@ impl SimpleComponent for AppModel {
                     set_title_widget = &gtk::Label {
                         set_markup: "<b>Rusty Tasky</b>",
                     },
+                    pack_start = &gtk::Button {
+                        set_icon_name: "list-add-symbolic",
+                        set_tooltip_text: Some("Add Item"),
+                        connect_clicked[sender] => move |_| {sender.input(AppMsg::NewTask)}
+                    }
                 },
             }
         }
     }
 
     fn init(
-        init: Self::Init,
+        _init: Self::Init,
         root: Self::Root,
         sender: ComponentSender<Self>,
     ) -> ComponentParts<Self> {
-        let model = AppModel {};
+        let model = AppModel {
+            form: FormModel::builder().launch(root.clone()).detach(),
+        };
         let widgets = view_output!();
         ComponentParts { model, widgets }
     }
 
-    fn update(&mut self, message: Self::Input, sender: ComponentSender<Self>) {
+    fn update(&mut self, message: Self::Input, _sender: ComponentSender<Self>) {
         match message {
-
+            AppMsg::NewTask => self.form.sender().send(FormInput::Show).unwrap(),
         }
     }
 }
