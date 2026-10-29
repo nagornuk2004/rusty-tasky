@@ -37,7 +37,17 @@ impl Component for FormModel {
             },
             #[name(create_task_entry)]
             gtk::Entry {
-                set_margin_all: 12
+                set_margin_all: 12,
+            },
+            gtk::Box {
+                set_orientation: gtk::Orientation::Horizontal,
+                set_align: gtk::Align::End,
+                #[name(create_task_button)]
+                gtk::Button {
+                    set_label: "Add",
+                    set_margin_end: 12,
+                    set_margin_start: 12,
+                },
             },
         }
     }
@@ -49,6 +59,10 @@ impl Component for FormModel {
     ) -> ComponentParts<Self> {
         let model = FormModel {};
         let widgets = view_output!();
+
+        let entry = widgets.create_task_entry.clone();
+        let button_sender = sender.clone();
+        
         widgets.create_task_entry.connect_activate(move |entry| {
             let buffer = entry.buffer();
             sender
@@ -58,6 +72,16 @@ impl Component for FormModel {
                 .unwrap();
             buffer.delete_text(0, None);
             sender.input_sender().send(FormInput::Close).unwrap();
+        });
+        widgets.create_task_button.connect_clicked(move |_| {
+            let buffer = entry.buffer();
+            button_sender
+                .output(FormOutput::CreateTask(TaskModel {
+                    name: buffer.text().into(),
+                }))
+                .unwrap();
+            buffer.delete_text(0, None);
+            button_sender.input_sender().send(FormInput::Close).unwrap();
         });
         ComponentParts { model, widgets }
     }
