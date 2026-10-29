@@ -35,6 +35,7 @@ impl SimpleComponent for AppModel {
     view! {
         #[root]
         adw::ApplicationWindow {
+            set_title: Some("Rusty Tasky"),
             set_default_size: (600, 800),
             set_size_request: (500, 400),
             gtk::Box {
