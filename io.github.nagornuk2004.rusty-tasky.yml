@@ -1,0 +1,32 @@
+id: io.github.nagornuk2004.rusty-tasky
+runtime: org.gnome.Platform
+runtime-version: "50"
+sdk: org.gnome.Sdk
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.rust-stable
+  - org.freedesktop.Sdk.Extension.llvm22
+build-options:
+  append-path: /usr/lib/sdk/rust-stable/bin
+command: rusty-tasky
+finish-args:
+  - --share=ipc
+  - --socket=fallback-x11
+  - --socket=wayland
+  - --device=dri
+modules:
+  - name: rusty-tasky
+    buildsystem: simple
+    build-commands:
+      - cargo --offline fetch --manifest-path Cargo.toml --verbose
+      - cargo --offline build --release
+      - install -Dm755 target/release/rusty-tasky /app/bin/rusty-tasky
+      - install -Dm644 res/streamline-ultimate-color--task-list-to-do.svg /app/share/icons/hicolor/scalable/apps/io.github.nagornuk2004.rusty-tasky.svg
+      - install -Dm644 res/io.github.nagornuk2004.rusty-tasky.desktop /app/share/applications/io.github.nagornuk2004.rusty-tasky.desktop
+    sources:
+      - "cargo-sources.yml"
+      - type: dir
+        path: .
+      - type: shell
+        commands:
+          - mkdir -p .cargo
+          - cp -vf cargo/config .cargo/config.toml

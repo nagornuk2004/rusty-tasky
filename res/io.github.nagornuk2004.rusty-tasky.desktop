@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Rusty Tasky
+Comment=Task planner app built with Relm4
+Exec=rusty-tasky
+Icon=io.github.nagornuk2004.rusty-tasky
+Type=Application
+Categories=Utility;
