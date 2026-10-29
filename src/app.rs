@@ -9,7 +9,11 @@ use relm4::{
 
 use components::form::FormModel;
 
-use crate::app::components::{form::FormInput, task_item::TaskModel, task_list::TaskListModel};
+use crate::app::components::{
+    form::{FormInput, FormOutput},
+    task_item::TaskModel,
+    task_list::{TaskListInput, TaskListModel},
+};
 
 pub struct AppModel {
     form: Controller<FormModel>,
@@ -18,7 +22,8 @@ pub struct AppModel {
 
 #[derive(Debug)]
 pub enum AppMsg {
-    NewTask,
+    OpenTaskForm,
+    CreateTask(TaskModel),
 }
 
 #[relm4::component(pub)]
@@ -42,7 +47,7 @@ impl SimpleComponent for AppModel {
                     pack_start = &gtk::Button {
                         set_icon_name: "list-add-symbolic",
                         set_tooltip_text: Some("Add Item"),
-                        connect_clicked[sender] => move |_| {sender.input(AppMsg::NewTask)}
+                        connect_clicked[sender] => move |_| {sender.input(AppMsg::OpenTaskForm)}
                     }
                 },
                 #[local_ref]
@@ -57,13 +62,24 @@ impl SimpleComponent for AppModel {
         sender: ComponentSender<Self>,
     ) -> ComponentParts<Self> {
         let tasks = vec![
-            TaskModel {name: "Do dishes".to_string()},
-            TaskModel {name: "Do homework".to_string()},
-            TaskModel {name: "Go buy food".to_string()},
+            TaskModel {
+                name: "Do dishes".to_string(),
+            },
+            TaskModel {
+                name: "Do homework".to_string(),
+            },
+            TaskModel {
+                name: "Go buy food".to_string(),
+            },
         ];
         let model = AppModel {
-            form: FormModel::builder().launch(root.clone()).detach(),
-            task_list: TaskListModel::builder().launch(tasks).detach()
+            form: FormModel::builder().launch(root.clone()).forward(
+                sender.input_sender(),
+                |output| match output {
+                    FormOutput::CreateTask(task) => AppMsg::CreateTask(task),
+                },
+            ),
+            task_list: TaskListModel::builder().launch(tasks).detach(),
         };
         let task_list_box = model.task_list.widget();
         let widgets = view_output!();
@@ -72,7 +88,12 @@ impl SimpleComponent for AppModel {
 
     fn update(&mut self, message: Self::Input, _sender: ComponentSender<Self>) {
         match message {
-            AppMsg::NewTask => self.form.sender().send(FormInput::Show).unwrap(),
+            AppMsg::OpenTaskForm => self.form.sender().send(FormInput::Show).unwrap(),
+            AppMsg::CreateTask(task) => self
+                .task_list
+                .sender()
+                .send(TaskListInput::CreateTask(task))
+                .unwrap(),
         }
     }
 }
