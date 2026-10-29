@@ -7,6 +7,7 @@ pub struct FormModel {}
 #[derive(Debug)]
 pub enum FormInput {
     Show,
+    Close,
 }
 
 #[derive(Debug)]
@@ -56,6 +57,7 @@ impl Component for FormModel {
                 }))
                 .unwrap();
             buffer.delete_text(0, None);
+            sender.input_sender().send(FormInput::Close).unwrap();
         });
         ComponentParts { model, widgets }
     }
@@ -63,6 +65,7 @@ impl Component for FormModel {
     fn update(&mut self, message: Self::Input, _sender: ComponentSender<Self>, root: &Self::Root) {
         match message {
             FormInput::Show => root.present(),
+            FormInput::Close => root.hide(),
         }
     }
 }
