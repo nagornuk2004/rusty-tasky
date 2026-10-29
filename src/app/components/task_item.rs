@@ -6,8 +6,9 @@ use relm4::{
     prelude::{DynamicIndex, FactoryComponent},
 };
 
-pub struct Task {
-    name: String,
+#[derive(Debug)]
+pub struct TaskModel {
+    pub name: String,
 }
 
 #[derive(Debug)]
@@ -17,11 +18,11 @@ pub enum TaskInput {}
 pub enum TaskOutput {}
 
 #[relm4::factory(pub)]
-impl FactoryComponent for Task {
+impl FactoryComponent for TaskModel {
     type ParentWidget = gtk::ListBox;
     type Input = TaskInput;
     type Output = TaskOutput;
-    type Init = Task;
+    type Init = TaskModel;
     type CommandOutput = ();
 
     view! {

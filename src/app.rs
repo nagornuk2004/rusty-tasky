@@ -9,10 +9,11 @@ use relm4::{
 
 use components::form::FormModel;
 
-use crate::app::components::form::FormInput;
+use crate::app::components::{form::FormInput, task_item::TaskModel, task_list::TaskListModel};
 
 pub struct AppModel {
     form: Controller<FormModel>,
+    task_list: Controller<TaskListModel>,
 }
 
 #[derive(Debug)]
@@ -44,6 +45,8 @@ impl SimpleComponent for AppModel {
                         connect_clicked[sender] => move |_| {sender.input(AppMsg::NewTask)}
                     }
                 },
+                #[local_ref]
+                task_list_box -> gtk::ScrolledWindow {}
             }
         }
     }
@@ -53,9 +56,16 @@ impl SimpleComponent for AppModel {
         root: Self::Root,
         sender: ComponentSender<Self>,
     ) -> ComponentParts<Self> {
+        let tasks = vec![
+            TaskModel {name: "Do dishes".to_string()},
+            TaskModel {name: "Do homework".to_string()},
+            TaskModel {name: "Go buy food".to_string()},
+        ];
         let model = AppModel {
             form: FormModel::builder().launch(root.clone()).detach(),
+            task_list: TaskListModel::builder().launch(tasks).detach()
         };
+        let task_list_box = model.task_list.widget();
         let widgets = view_output!();
         ComponentParts { model, widgets }
     }
