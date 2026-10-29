@@ -27,10 +27,17 @@ impl Component for FormModel {
             set_title: Some("Add a task"),
             set_modal: true,
             set_transient_for: Some(&parent),
-            set_default_size: (400, 300),
+            set_default_size: (300, 250),
             set_hide_on_close: true,
+            gtk::Label::new(Some(&"Task Name")) {
+                set_margin_start: 12,
+                set_margin_top: 12,
+                set_align: gtk::Align::Start,
+            },
             #[name(create_task_entry)]
-            gtk::Entry,
+            gtk::Entry {
+                set_margin_all: 12
+            },
         }
     }
 
